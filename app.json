@@ -1,0 +1,40 @@
+{
+  "expo": {
+    "name": "Drippy",
+    "slug": "drippy",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "owner": "heyjateen",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#121212"
+    },
+    "scheme": "drippy",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.drippy.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#121212"
+      },
+      "package": "com.drippy.app",
+      "config": {
+        "usesCleartextTraffic": true
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "7676dc67-8b5e-4b56-8493-c9d9fafcdee8"
+      }
+    }
+  }
+}
