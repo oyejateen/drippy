@@ -17,12 +17,21 @@ import { Camera, CameraType, FlashMode } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import * as MediaLibrary from 'expo-media-library';
 import * as Location from 'expo-location';
+
 import * as FileSystem from 'expo-file-system';
 import axios from 'axios';
 import { MaterialIcons } from '@expo/vector-icons';
 
+import { GoogleGenAI, Modality, Part } from '@google/genai';
+
 // Fallback API key if env variable is not available
-const GOOGLE_CLOUD_API_KEY = `AIzaSyD7cFZ4ijYt3JslhGnbZnY8165Ei_uGoXE`;
+const GOOGLE_CLOUD_API_KEY = process.env.GOOGLE_CLOUD_API_KEY;
+
+if (!GOOGLE_CLOUD_API_KEY) {
+  console.error('Error: GOOGLE_CLOUD_API_KEY not found in environment variables.');
+  Alert.alert('API Key Missing', 'Google Cloud API Key not found. Please add it to your .env file.');
+  // Depending on how you want to handle this in the app, you might disable functionality or show an error screen
+}
 
 const { width, height } = Dimensions.get('window');
 
@@ -199,6 +208,11 @@ const TryingRoomScreen = () => {
       return;
     }
     
+    if (!GOOGLE_CLOUD_API_KEY) {
+      Alert.alert('API Key Missing', 'Cannot process without Google Cloud API Key.');
+      return;
+    }
+
     setProcessingImage(true);
     
     try {
@@ -223,154 +237,71 @@ const TryingRoomScreen = () => {
         console.log('Clothing image converted successfully');
         
         console.log('Both images prepared successfully');
-        
-        // Prepare the detailed prompt for virtual try-on
-        const detailedPrompt = `{
-          "prompt_version": "2.0",
-          "objective": "Generate a photorealistic virtual try-on image, seamlessly integrating a specified clothing item onto a person while rigidly preserving their facial identity, the clothing's exact appearance, and placing them in a completely new, distinct background.",
-          "task": "High-Fidelity Virtual Try-On with Identity/Garment Preservation and Background Replacement",
-        
-          "inputs": {
-            "person_image": {
-              "description": "Source image containing the target person. Used *primarily* for identity (face, skin tone), pose, body shape, hair, and accessories. The original background will be DISCARDED.",
-              "id": "input_1"
-            },
-            "garment_image": {
-              "description": "Source image containing the target clothing item. May include a model, mannequin, or be flat-lay. Used *strictly* for the clothing's visual properties (color, style, texture, pattern).",
-              "id": "input_2"
-            },
-            "background_preference": {
-              "description": "Optional textual description or style reference for the desired new background (e.g., 'neutral studio', 'outdoor park scene', 'blurred cityscape'). If unspecified, generate a plausible, non-distracting, photorealistic background.",
-              "id": "input_3",
-              "required": false
-            }
-          },
-        
-          "processing_steps": [
-            "Isolate the clothing item from 'garment_image' (input_2), discarding any original model, mannequin, or background. Extract exact color, pattern, texture, and style information.",
-            "Identify the person (face, body shape, skin tone), pose, hair, and accessories from 'person_image' (input_1).",
-            "Segment the person from the original background in 'person_image'.",
-            "Determine the desired new background based on 'background_preference' or generate a suitable default.",
-            "Analyze lighting cues from 'person_image' to inform initial lighting on the subject, but adapt lighting for consistency with the *new* background."
-          ],
-        
-          "output_requirements": {
-            "description": "Generate a single, high-resolution image where the person from 'person_image' appears to be naturally and realistically wearing the clothing item from 'garment_image', situated within a **completely new and different background**.",
-            "format": "Image (e.g., PNG, JPG)",
-            "quality": "Photorealistic, free of obvious artifacts, blending issues, or inconsistencies between subject, garment, and the new background."
-          },
-        
-          "core_constraints": {
-            "identity_lock": {
-              "priority": "ABSOLUTE CRITICAL",
-              "instruction": "Maintain the **PERFECT** facial identity, features, skin tone, and expression of the person from 'person_image'. **ZERO alterations** to the face are permitted. Treat the head region (including hair) as immutable unless directly and logically occluded by the garment. DO NOT GUESS OR HALLUCINATE FACIAL FEATURES."
-            },
-            "garment_fidelity": {
-              "priority": "ABSOLUTE CRITICAL",
-              "instruction": "Preserve the **EXACT** color (hue, saturation, brightness), pattern, texture, material properties, and design details of the clothing item from 'garment_image'. **ZERO deviations** in style, color, or visual appearance are allowed. Render the garment precisely as depicted in input_2."
-            },
-            "background_replacement": {
-              "priority": "CRITICAL",
-              "instruction": "Generate a **COMPLETELY NEW and DIFFERENT** background that is distinct from the original background in 'person_image'. The new background should be photorealistic and contextually plausible for a person/fashion image unless otherwise specified by 'background_preference'. Ensure the person is seamlessly integrated into this new environment. **NO elements** from the original background should remain visible."
-            },
-            "pose_preservation": {
-              "priority": "HIGH",
-              "instruction": "Retain the **exact** body pose and positioning of the person from 'person_image'."
-            },
-            "realistic_integration": {
-              "priority": "HIGH",
-              "instruction": "Simulate physically plausible draping, folding, and fit of the garment onto the person's body according to their shape and pose. Ensure natural interaction with the body within the context of the *new* background."
-            },
-            "lighting_consistency": {
-              "priority": "HIGH",
-              "instruction": "Apply lighting, shadows, and highlights to the rendered garment AND the person that are **perfectly consistent** with the direction, intensity, and color temperature implied by the **NEW background**. Adjust subject lighting subtly if necessary to match the new scene, but prioritize maintaining a natural look consistent with the original subject's lighting where possible."
-            }
-          }
-        }`;
-        
-        // Call the Gemini API with both images
-        const geminiEndpoint = `https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash-exp-image-generation:generateContent?key=${GOOGLE_CLOUD_API_KEY}`;
-        
-        const requestData = {
-          contents: [
-            {
-              parts: [
-                { text: detailedPrompt },
-                {
-                  inline_data: {
-                    mime_type: "image/jpeg",
-                    data: userImageBase64
-                  }
-                },
-                {
-                  inline_data: {
-                    mime_type: "image/jpeg",
-                    data: clothingImageBase64
-                  }
-                }
-              ]
-            }
-          ],
-          generation_config: {
-            temperature: 0.6,
-            top_k: 40,
-            top_p: 0.95,
-            max_output_tokens: 4096,
-          },
-          // Specify that we want image in the response
-          response_modalities: ["TEXT", "IMAGE"]
-        };
-        
-        console.log('Calling Gemini API...');
-        const response = await axios.post(geminiEndpoint, requestData);
-        console.log('Received response from Gemini API');
-        
-        // Log response structure for debugging
-        console.log('Response status:', response.status);
-        console.log('Response structure:', JSON.stringify(Object.keys(response.data)));
-        
-        // Extract the image from the response
-        if (response.data && 
-            response.data.candidates && 
-            response.data.candidates[0] && 
-            response.data.candidates[0].content && 
-            response.data.candidates[0].content.parts) {
-          
-          const parts = response.data.candidates[0].content.parts;
-          
-          // Look for inline_data or inlineData field (API might use different formats)
-          let imagePart = parts.find((part: any) => 
-            (part.inline_data && part.inline_data.mime_type && part.inline_data.mime_type.startsWith('image/')) ||
-            (part.inlineData && part.inlineData.mime_type && part.inlineData.mime_type.startsWith('image/'))
-          );
-          
-          if (imagePart) {
-            // Handle both inline_data and inlineData formats
-            const inlineData = imagePart.inline_data || imagePart.inlineData;
+        console.log(userImageBase64);
+        console.log(clothingImageBase64);
+
+        // Prepare the detailed prompt for virtual try-on with grey background instruction
+        const detailedPrompt = "Create a photorealistic virtual try-on image. Seamlessly integrate the clothing item from the second image onto the person in the first image, preserving their identity and the clothing's appearance, with a clean background.";
             
-            if (inlineData && inlineData.data) {
-              const resultImageBase64 = inlineData.data;
-              const mimeType = inlineData.mime_type || 'image/jpeg';
-              setResultImage(`data:${mimeType};base64,${resultImageBase64}`);
-              console.log('Successfully received image from Gemini API');
-            } else {
-              throw new Error('Invalid inline data format');
-            }
+        console.log('Calling Gemini API...');
+
+        // Initialize the GoogleGenAI client
+        const ai = new GoogleGenAI({ apiKey: GOOGLE_CLOUD_API_KEY });
+        
+        // Generate content
+        const response = await ai.models.generateContent({
+          model: "gemini-2.0-flash-preview-image-generation",
+          contents: [{
+            role: 'user',
+            parts: [
+              { text: detailedPrompt },
+              {
+                inlineData: {
+                  mimeType: "image/jpeg", // Assuming jpeg for simplicity, adjust if needed
+                  data: userImageBase64
+                }
+              },
+              {
+                inlineData: {
+                  mimeType: "image/jpeg", // Assuming jpeg for simplicity, adjust if needed
+                  data: clothingImageBase64
+                }
+              }
+            ]
+          }],
+          config: {
+            responseModalities: [Modality.TEXT, Modality.IMAGE],
+          }
+        });
+        
+        console.log('Received response from Gemini API.');
+
+        // Check if the response contains an image part and save it
+        if (response.candidates && response.candidates[0] && response.candidates[0].content && response.candidates[0].content.parts) {
+          const imagePart = response.candidates[0].content.parts.find((part: Part) => 
+            part.inlineData && part.inlineData.mimeType && part.inlineData.mimeType.startsWith('image/')
+          );
+
+          if (imagePart && imagePart.inlineData) {
+            const resultImageBase64 = imagePart.inlineData.data;
+            const mimeType = imagePart.inlineData.mimeType || 'image/jpeg';
+            setResultImage(`data:${mimeType};base64,${resultImageBase64}`);
+            console.log('Successfully received image from Gemini API');
           } else {
             // Log if we find text instead
-            const textPart = parts.find((part: any) => part.text);
+            const textPart = response.candidates[0].content.parts.find((part: any) => part.text);
             if (textPart) {
               console.log('Found text in response instead of image:', textPart.text);
             }
             
-            console.log('No image part found, checking full response structure');
-            console.log(JSON.stringify(response.data, null, 2));
+            console.log('No image part found in SDK response, checking full response structure');
+            console.log(JSON.stringify(response, null, 2));
             
             throw new Error('No image found in Gemini API response');
           }
         } else {
-          console.log('Invalid response format, checking full response:');
-          console.log(JSON.stringify(response.data, null, 2));
+          console.log('Invalid response format from SDK, checking full response:');
+          console.log(JSON.stringify(response, null, 2));
           throw new Error('Invalid response format from Gemini API');
         }
         
