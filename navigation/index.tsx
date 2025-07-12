@@ -46,11 +46,12 @@ const MainTabNavigator = () => {
         tabBarActiveTintColor: '#FF385C',
         tabBarInactiveTintColor: '#ABABAB',
         tabBarStyle: {
-          backgroundColor: '#1E1E1E',
+          backgroundColor: '#FFFFFF',
           paddingBottom: 5,
           paddingTop: 5,
           height: 60,
-          borderTopWidth: 0,
+          borderTopWidth: 1,
+          borderTopColor: '#F0F0F0',
           elevation: 0,
           shadowOpacity: 0,
         },
@@ -60,11 +61,11 @@ const MainTabNavigator = () => {
         name="Haul" 
         component={HaulScreen} 
         options={{
-          tabBarLabel: 'Explore',
+          tabBarLabel: 'Shop',
           headerShown: false,
           tabBarIcon: ({ color, size, focused }) => (
             <MaterialIcons 
-              name="search" 
+              name="shopping-bag" 
               size={focused ? 28 : 24} 
               color={color} 
             />
@@ -157,25 +158,25 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#121212',
+    backgroundColor: '#F8F8F8',
   },
   loadingText: {
     marginTop: 10,
     fontSize: 16,
-    color: '#FFFFFF',
+    color: '#666',
   },
   placeholderContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#121212',
+    backgroundColor: '#F8F8F8',
     padding: 20,
   },
   placeholderIcon: {
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: '#2A2A2A',
+    backgroundColor: '#F0F0F0',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 20,
@@ -185,14 +186,14 @@ const styles = StyleSheet.create({
   },
   placeholderTitle: {
     fontSize: 24,
-    color: '#FFFFFF',
+    color: '#333',
     fontWeight: 'bold',
     marginBottom: 10,
     textAlign: 'center',
   },
   placeholderSubtitle: {
     fontSize: 16,
-    color: '#ABABAB',
+    color: '#666',
     textAlign: 'center',
   },
 });

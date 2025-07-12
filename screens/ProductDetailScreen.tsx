@@ -12,8 +12,8 @@ import {
 } from 'react-native';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { MainStackParamList } from '../navigation/types';
-import Icon from 'react-native-vector-icons/Feather';
+import { MainStackParamList } from '../navigation';
+import { MaterialIcons } from '@expo/vector-icons';
 import { Product } from '../utils/dataSource';
 
 type ProductDetailRouteProp = RouteProp<MainStackParamList, 'ProductDetail'>;
@@ -28,6 +28,7 @@ const ProductDetailScreen: React.FC = () => {
   
   const [isFavorite, setIsFavorite] = useState(false);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
+  const [selectedColor, setSelectedColor] = useState<string | null>(null);
   
   // Create a random list of available sizes
   const availableSizes = React.useMemo(() => {
@@ -38,11 +39,20 @@ const ProductDetailScreen: React.FC = () => {
     return shuffled.slice(0, numSizes);
   }, [product.id]);
   
+  // Create a random list of available colors
+  const availableColors = React.useMemo(() => {
+    const allColors = ['Black', 'White', 'Red', 'Blue', 'Green', 'Yellow', 'Pink', 'Purple'];
+    // Randomly select 3-5 colors as available
+    const numColors = Math.floor(Math.random() * 3) + 3;
+    const shuffled = [...allColors].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, numColors);
+  }, [product.id]);
+  
   const discountPercentage = React.useMemo(() => {
     if (!product.discountedPrice) return 0;
     
-    const originalPrice = parseInt(product.price.replace('₹', ''));
-    const discountedPrice = parseInt(product.discountedPrice.replace('₹', ''));
+    const originalPrice = parseFloat(product.price.replace(/[^0-9.]/g, ''));
+    const discountedPrice = parseFloat(product.discountedPrice.replace(/[^0-9.]/g, ''));
     
     if (isNaN(originalPrice) || isNaN(discountedPrice)) return 0;
     
@@ -57,9 +67,13 @@ const ProductDetailScreen: React.FC = () => {
     setSelectedSize(size);
   };
   
+  const handleColorSelect = (color: string) => {
+    setSelectedColor(color);
+  };
+  
   const handleAddToBag = () => {
     // In a real app, this would add the product to cart
-    alert(`Added ${product.title} (Size: ${selectedSize || 'Not selected'}) to bag`);
+    alert(`Added ${product.title} (Size: ${selectedSize || 'Not selected'}, Color: ${selectedColor || 'Not selected'}) to bag`);
   };
   
   const handleTryOn = () => {
@@ -74,14 +88,18 @@ const ProductDetailScreen: React.FC = () => {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-          <Icon name="arrow-left" size={24} color="#333" />
+          <MaterialIcons name="arrow-back" size={24} color="#333" />
         </TouchableOpacity>
         <View style={styles.headerActions}>
           <TouchableOpacity style={styles.iconButton} onPress={toggleFavorite}>
-            <Icon name={isFavorite ? "heart" : "heart"} size={24} color={isFavorite ? "#FF4089" : "#333"} />
+            <MaterialIcons 
+              name={isFavorite ? "favorite" : "favorite-border"} 
+              size={24} 
+              color={isFavorite ? "#FF385C" : "#333"} 
+            />
           </TouchableOpacity>
           <TouchableOpacity style={styles.iconButton}>
-            <Icon name="share-2" size={22} color="#333" />
+            <MaterialIcons name="share" size={22} color="#333" />
           </TouchableOpacity>
         </View>
       </View>
@@ -100,8 +118,11 @@ const ProductDetailScreen: React.FC = () => {
             <Text style={styles.brandText}>{product.brand}</Text>
             {product.rating && (
               <View style={styles.ratingContainer}>
-                <Icon name="star" size={14} color="#FFD700" />
+                <MaterialIcons name="star" size={14} color="#FFD700" />
                 <Text style={styles.ratingText}>{product.rating}</Text>
+                {product.reviewCount && (
+                  <Text style={styles.reviewCount}>({product.reviewCount})</Text>
+                )}
               </View>
             )}
           </View>
@@ -118,13 +139,51 @@ const ProductDetailScreen: React.FC = () => {
             )}
           </View>
           
+          {/* Delivery Options */}
+          <View style={styles.deliverySection}>
+            <View style={styles.deliveryOption}>
+              <MaterialIcons name="local-shipping" size={20} color="#4CAF50" />
+              <Text style={styles.deliveryText}>Free delivery on orders $35+</Text>
+            </View>
+            <View style={styles.deliveryOption}>
+              <MaterialIcons name="store" size={20} color="#2196F3" />
+              <Text style={styles.deliveryText}>Free pickup available</Text>
+            </View>
+          </View>
+          
           {/* Tags */}
           <View style={styles.tagsContainer}>
-            {product.tags.map((tag, index) => (
+            {product.tags.slice(0, 5).map((tag, index) => (
               <View key={index} style={styles.tag}>
                 <Text style={styles.tagText}>{tag}</Text>
               </View>
             ))}
+          </View>
+          
+          {/* Color Selection */}
+          <View style={styles.colorSection}>
+            <Text style={styles.sectionTitle}>Select Color</Text>
+            <View style={styles.colorsContainer}>
+              {availableColors.map((color) => (
+                <TouchableOpacity
+                  key={color}
+                  style={[
+                    styles.colorButton,
+                    selectedColor === color && styles.selectedColorButton
+                  ]}
+                  onPress={() => handleColorSelect(color)}
+                >
+                  <Text 
+                    style={[
+                      styles.colorText,
+                      selectedColor === color && styles.selectedColorText
+                    ]}
+                  >
+                    {color}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
           </View>
           
           {/* Size Selection */}
@@ -168,6 +227,18 @@ const ProductDetailScreen: React.FC = () => {
               <Text style={styles.detailLabel}>Brand</Text>
               <Text style={styles.detailValue}>{product.brand}</Text>
             </View>
+            {product.description && (
+              <View style={styles.detailItem}>
+                <Text style={styles.detailLabel}>Description</Text>
+                <Text style={styles.detailValue}>{product.description}</Text>
+              </View>
+            )}
+          </View>
+          
+          {/* Return Policy */}
+          <View style={styles.returnSection}>
+            <MaterialIcons name="assignment-return" size={20} color="#666" />
+            <Text style={styles.returnText}>Free 90-day returns</Text>
           </View>
         </View>
       </ScrollView>
@@ -178,22 +249,20 @@ const ProductDetailScreen: React.FC = () => {
           style={[styles.actionButton, styles.tryOnButton]}
           onPress={handleTryOn}
         >
-          <Icon name="camera" size={18} color="#FF4089" />
+          <MaterialIcons name="camera-alt" size={18} color="#FF385C" />
           <Text style={styles.tryOnButtonText}>Try On</Text>
         </TouchableOpacity>
         
         <TouchableOpacity 
           style={[
             styles.actionButton, 
-            styles.addToCartButton,
-            !selectedSize && styles.disabledButton
+            styles.addToCartButton
           ]}
           onPress={handleAddToBag}
-          disabled={!selectedSize}
         >
-          <Icon name="shopping-bag" size={18} color="#FFF" />
+          <MaterialIcons name="shopping-cart" size={18} color="#FFF" />
           <Text style={styles.addToCartButtonText}>
-            {selectedSize ? "Add To Bag" : "Select Size"}
+            Add to Cart
           </Text>
         </TouchableOpacity>
       </View>
@@ -204,88 +273,114 @@ const ProductDetailScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#FFFFFF',
   },
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingTop: Platform.OS === 'ios' ? 50 : 16,
-    paddingBottom: 10,
-    backgroundColor: '#fff',
-    zIndex: 10,
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingTop: Platform.OS === 'ios' ? 70 : 40,
+    paddingBottom: 16,
+    backgroundColor: '#FFFFFF',
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
   },
   backButton: {
-    padding: 8,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#F8F8F8',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   headerActions: {
     flexDirection: 'row',
+    alignItems: 'center',
   },
   iconButton: {
-    padding: 8,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#F8F8F8',
+    justifyContent: 'center',
+    alignItems: 'center',
     marginLeft: 8,
   },
   productImage: {
     width: SCREEN_WIDTH,
-    height: SCREEN_WIDTH * 1.2,
-    backgroundColor: '#f8f8f8',
+    height: SCREEN_WIDTH,
+    backgroundColor: '#F8F8F8',
   },
   productInfo: {
-    padding: 16,
+    padding: 20,
   },
   brandRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 4,
+    justifyContent: 'space-between',
+    marginBottom: 8,
   },
   brandText: {
-    fontSize: 16,
-    color: '#555',
+    fontSize: 14,
+    color: '#666',
     fontWeight: '500',
   },
   ratingContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f8f8f8',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
   },
   ratingText: {
-    marginLeft: 4,
+    fontSize: 14,
     color: '#333',
-    fontWeight: '600',
+    marginLeft: 4,
+  },
+  reviewCount: {
     fontSize: 12,
+    color: '#666',
+    marginLeft: 4,
   },
   productTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#333',
-    marginBottom: 8,
+    marginBottom: 12,
+    lineHeight: 26,
   },
   priceRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 16,
   },
   discountedPrice: {
-    fontSize: 18,
+    fontSize: 24,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#FF385C',
     marginRight: 8,
   },
   originalPrice: {
-    fontSize: 16,
+    fontSize: 18,
     color: '#999',
     textDecorationLine: 'line-through',
     marginRight: 8,
   },
   discountPercentage: {
     fontSize: 14,
-    color: '#3CB371',
+    color: '#FF385C',
     fontWeight: '600',
+  },
+  deliverySection: {
+    marginBottom: 16,
+  },
+  deliveryOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  deliveryText: {
+    fontSize: 14,
+    color: '#666',
+    marginLeft: 8,
   },
   tagsContainer: {
     flexDirection: 'row',
@@ -293,25 +388,53 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   tag: {
-    backgroundColor: '#f0f0f0',
-    borderRadius: 12,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
+    backgroundColor: '#F8F8F8',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
     marginRight: 8,
     marginBottom: 8,
   },
   tagText: {
     fontSize: 12,
-    color: '#555',
+    color: '#666',
   },
-  sizeSection: {
+  colorSection: {
     marginBottom: 20,
   },
   sectionTitle: {
     fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 12,
+    fontWeight: '600',
     color: '#333',
+    marginBottom: 12,
+  },
+  colorsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  colorButton: {
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    borderRadius: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    marginRight: 8,
+    marginBottom: 8,
+    backgroundColor: '#FFFFFF',
+  },
+  selectedColorButton: {
+    borderColor: '#FF385C',
+    backgroundColor: '#FF385C',
+  },
+  colorText: {
+    fontSize: 14,
+    color: '#333',
+  },
+  selectedColorText: {
+    color: '#FFFFFF',
+  },
+  sizeSection: {
+    marginBottom: 20,
   },
   sizesContainer: {
     flexDirection: 'row',
@@ -319,87 +442,96 @@ const styles = StyleSheet.create({
   },
   sizeButton: {
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 30,
-    width: 56,
-    height: 56,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 10,
-    marginBottom: 10,
+    borderColor: '#E0E0E0',
+    borderRadius: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    marginRight: 8,
+    marginBottom: 8,
+    backgroundColor: '#FFFFFF',
   },
   selectedSizeButton: {
-    borderColor: '#FF4089',
-    backgroundColor: '#FFDCEA',
+    borderColor: '#FF385C',
+    backgroundColor: '#FF385C',
   },
   sizeText: {
     fontSize: 14,
     color: '#333',
   },
   selectedSizeText: {
-    color: '#FF4089',
-    fontWeight: '600',
+    color: '#FFFFFF',
   },
   detailsSection: {
-    marginBottom: 100,
+    marginBottom: 20,
   },
   detailItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingVertical: 8,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: '#F0F0F0',
   },
   detailLabel: {
     fontSize: 14,
-    color: '#777',
+    color: '#666',
+    fontWeight: '500',
   },
   detailValue: {
     fontSize: 14,
     color: '#333',
-    fontWeight: '500',
+    flex: 1,
+    textAlign: 'right',
+  },
+  returnSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  returnText: {
+    fontSize: 14,
+    color: '#666',
+    marginLeft: 8,
   },
   bottomActions: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
     flexDirection: 'row',
-    backgroundColor: '#fff',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    backgroundColor: '#FFFFFF',
     borderTopWidth: 1,
-    borderTopColor: '#eee',
+    borderTopColor: '#F0F0F0',
   },
   actionButton: {
     flex: 1,
-    height: 46,
-    borderRadius: 8,
     flexDirection: 'row',
-    justifyContent: 'center',
     alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 16,
+    borderRadius: 8,
+    marginHorizontal: 4,
   },
   tryOnButton: {
-    backgroundColor: '#fff',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#FF4089',
-    marginRight: 10,
+    borderColor: '#FF385C',
   },
   tryOnButtonText: {
-    marginLeft: 8,
-    color: '#FF4089',
+    fontSize: 16,
     fontWeight: '600',
+    color: '#FF385C',
+    marginLeft: 8,
   },
   addToCartButton: {
-    backgroundColor: '#FF4089',
-  },
-  disabledButton: {
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#FF385C',
   },
   addToCartButtonText: {
-    marginLeft: 8,
-    color: '#fff',
+    fontSize: 16,
     fontWeight: '600',
+    color: '#FFFFFF',
+    marginLeft: 8,
+  },
+  disabledButton: {
+    backgroundColor: '#E0E0E0',
+    borderColor: '#E0E0E0',
   },
 });
 

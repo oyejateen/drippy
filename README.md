@@ -1,74 +1,142 @@
-# Drippy
+# Walmart Shopping App with AI Chatbot
 
-Drippy is a modern AI-powered virtual try-on app that lets users preview how clothes look on them before buying. Built with React Native, Expo, and TypeScript, Drippy leverages advanced AI and image processing to provide a seamless, photorealistic try-on experience.
+A modern React Native shopping application built for Walmart hackathon, featuring an advanced AI chatbot powered by Google Gemini API.
 
 ## Features
 
-- **Virtual Try-On:** Use your camera or upload a photo to try on clothes virtually.
-- **AI-Powered Image Processing:** Integrates with AI APIs to generate realistic try-on images, preserving your identity and garment details.
-- **Product Catalog:** Browse a curated list of fashion products, view details, and try them on virtually.
-- **Personal Wardrobe:** Save your favorite items and manage your virtual wardrobe.
-- **Cross-Platform:** Works on Android, iOS, and web (via Expo).
+### 🛍️ Shopping Experience
+- **Walmart Product Integration**: Full integration with Walmart product dataset
+- **Modern UI**: Clean, modern interface with shopping-focused design
+- **Product Discovery**: Browse products by categories, tags, and search
+- **Featured Products**: Curated collections of top-rated and discounted items
+- **Product Details**: Comprehensive product information with size/color selection
 
-## Getting Started
+### 🤖 AI Chatbot Assistant
+- **Gemini AI Powered**: Advanced conversational AI using Google's Gemini API
+- **Product Recommendations**: Smart product suggestions based on user queries
+- **Shopping Assistance**: Help with product searches, deals, and category browsing
+- **Floating Interface**: Easy-to-access chatbot button on home screen
+- **Real-time Responses**: Instant AI-powered responses with product cards
 
-### Prerequisites
+### 🎯 Unique Selling Points
+- **Virtual Try-On**: AR-powered trying room for clothing items
+- **Personalized Wardrobe**: Save and organize favorite items
+- **Smart Recommendations**: AI-driven product suggestions
+- **Modern Shopping Experience**: Seamless integration of AI and e-commerce
 
-- [Node.js](https://nodejs.org/) (v16 or later recommended)
-- [Expo CLI](https://docs.expo.dev/get-started/installation/)
-- [Git](https://git-scm.com/)
+## Setup Instructions
 
-### Installation
+### 1. Install Dependencies
+```bash
+npm install
+```
 
-1. **Clone the repository:**
-   ```powershell
-   git clone https://github.com/oyejateen/drippy.git
-   cd drippy
-   ```
+### 2. Environment Configuration
+Create a `.env` file in the root directory:
+```
+EXPO_PUBLIC_GEMINI_API_KEY=your_gemini_api_key_here
+```
 
-2. **Install dependencies:**
-   ```powershell
-   npm install
-   ```
+To get a Gemini API key:
+1. Go to [Google AI Studio](https://makersuite.google.com/app/apikey)
+2. Create a new API key
+3. Add it to your `.env` file
 
-3. **Set up environment variables:**
-   - Copy `.env.example` to `.env` and fill in your API keys and configuration.
-   - Example:
-     ```
-     OPENAI_API_KEY=your_openai_api_key
-     FIREBASE_API_KEY=your_firebase_api_key
-     # ...other variables as needed
-     ```
+### 3. Run the Application
+```bash
+npm start
+```
 
-4. **Start the development server:**
-   ```powershell
-   npm run start
-   ```
-   - For Android: `npm run android`
-   - For iOS: `npm run ios`
-   - For Web: `npm run web`
-
-5. **Open the app:**
-   - Use the Expo Go app on your device, or an emulator/simulator.
+Then press:
+- `a` for Android
+- `i` for iOS
+- `w` for web
 
 ## Project Structure
 
-- `/screens` — App screens (Welcome, Login, Product Detail, Try-On, Wardrobe, etc.)
-- `/components` — Reusable UI components and permission managers.
-- `/utils` — Utility functions, data sources, and Firebase integration.
-- `/assets` — Images, icons, and datasets.
-- `App.tsx` — Main app entry point.
-- `navigation/` — Navigation setup using React Navigation.
+```
+drippy/
+├── components/
+│   └── WalmartChatbot.tsx      # AI chatbot component
+├── screens/
+│   ├── HaulScreen.tsx          # Main shopping screen
+│   ├── ProductDetailScreen.tsx  # Product details
+│   ├── TryingRoomScreen.tsx    # AR try-on feature
+│   └── WardrobeScreen.tsx      # Saved items
+├── utils/
+│   ├── walmartDataSource.ts    # Walmart data handling
+│   └── dataSource.ts          # Legacy data source
+├── navigation/
+│   └── index.tsx              # App navigation
+└── assets/
+    └── dataset/
+        └── walmart-products.csv # Walmart product dataset
+```
 
-## Environment Variables
+## Key Technologies
 
-The app uses environment variables for API keys and configuration. See `.env.example` for required variables.
+- **React Native**: Cross-platform mobile development
+- **Expo**: Development platform and tools
+- **Google Gemini AI**: Advanced AI chatbot
+- **TypeScript**: Type-safe development
+- **NativeWind**: Tailwind CSS for React Native
+- **React Navigation**: Navigation framework
 
-## Tech Stack
+## Features Breakdown
 
-- **React Native** (Expo)
-- **TypeScript**
-- **Tailwind CSS** (via NativeWind)
-- **Firebase** (authentication, storage, Firestore)
-- **OpenAI / Gemini API** (for AI image generation)
-- **React Navigation**
+### Walmart Data Integration
+- Parses Walmart CSV dataset
+- Handles product categories, pricing, and availability
+- Supports search and filtering
+- Caches data for performance
+
+### AI Chatbot Features
+- Natural language processing
+- Product recommendations
+- Category-specific suggestions
+- Deal and discount information
+- Real-time conversation flow
+
+### Shopping Experience
+- Featured products showcase
+- Discounted items highlighting
+- Category-based browsing
+- Advanced search functionality
+- Product comparison tools
+
+### Modern UI/UX
+- Clean, minimalist design
+- Walmart brand colors
+- Smooth animations
+- Responsive layouts
+- Accessibility features
+
+## Hackathon Highlights
+
+This app demonstrates:
+1. **AI Integration**: Seamless AI chatbot for shopping assistance
+2. **Data Processing**: Efficient handling of large Walmart dataset
+3. **Modern Architecture**: Clean, maintainable code structure
+4. **User Experience**: Intuitive shopping interface
+5. **Innovation**: AR try-on as unique selling point
+
+## Future Enhancements
+
+- Payment integration
+- User authentication
+- Shopping cart functionality
+- Order tracking
+- Push notifications
+- Social sharing features
+- Advanced AR features
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
+
+## License
+
+This project is created for Walmart hackathon demonstration purposes.

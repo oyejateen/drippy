@@ -498,8 +498,8 @@ const TryingRoomScreen = () => {
       {/* Header (only when camera is not visible) */}
       {!cameraVisible && (
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>DRIPPY</Text>
-          <Text style={styles.headerSubtitle}>TRYING ROOM</Text>
+          <Text style={styles.headerTitle}>Trying Room</Text>
+          <Text style={styles.headerSubtitle}>Virtual Try-On</Text>
         </View>
       )}
 
@@ -672,7 +672,7 @@ const TryingRoomScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#121212',
+    backgroundColor: '#F8F8F8',
   },
   header: {
     padding: 16,
@@ -686,7 +686,7 @@ const styles = StyleSheet.create({
   },
   headerSubtitle: {
     fontSize: 16,
-    color: '#FFFFFF',
+    color: '#333333',
     letterSpacing: 3,
   },
   scrollContent: {
@@ -699,14 +699,19 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#333333',
     marginBottom: 16,
   },
   imageSelectionContainer: {
-    backgroundColor: '#1E1E1E',
+    backgroundColor: '#FFFFFF',
     borderRadius: 12,
     overflow: 'hidden',
     padding: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   imageOptions: {
     flexDirection: 'row',
@@ -715,7 +720,7 @@ const styles = StyleSheet.create({
   imageOptionButton: {
     alignItems: 'center',
     padding: 20,
-    backgroundColor: '#2A2A2A',
+    backgroundColor: '#F0F0F0',
     borderRadius: 12,
     width: '45%',
   },
@@ -723,7 +728,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   imageOptionText: {
-    color: '#FFFFFF',
+    color: '#333333',
     fontWeight: '500',
   },
   selectedImageContainer: {
@@ -747,10 +752,15 @@ const styles = StyleSheet.create({
   clothingOption: {
     alignItems: 'center',
     marginRight: 16,
-    backgroundColor: '#1E1E1E',
+    backgroundColor: '#FFFFFF',
     borderRadius: 12,
     padding: 12,
     width: 100,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
   selectedClothingOption: {
     borderWidth: 2,
@@ -763,7 +773,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   clothingName: {
-    color: '#FFFFFF',
+    color: '#333333',
     fontSize: 12,
     textAlign: 'center',
   },

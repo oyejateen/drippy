@@ -222,8 +222,8 @@ const WardrobeScreen = () => {
       
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>DRIPPY</Text>
-        <Text style={styles.headerSubtitle}>WARDROBE</Text>
+        <Text style={styles.headerTitle}>Wardrobe</Text>
+        <Text style={styles.headerSubtitle}>Your Saved Outfits</Text>
       </View>
       
       {/* Categories Filter */}
@@ -318,7 +318,7 @@ const WardrobeScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#121212',
+    backgroundColor: '#F8F8F8',
   },
   header: {
     padding: 16,
@@ -332,7 +332,7 @@ const styles = StyleSheet.create({
   },
   headerSubtitle: {
     fontSize: 16,
-    color: '#FFFFFF',
+    color: '#333333',
     letterSpacing: 3,
   },
   categoriesContainer: {
@@ -343,14 +343,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
-    backgroundColor: '#2A2A2A',
+    backgroundColor: '#FFFFFF',
     marginHorizontal: 6,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
   selectedCategoryPill: {
     backgroundColor: '#7209B7',
   },
   categoryText: {
-    color: '#FFFFFF',
+    color: '#333333',
     fontWeight: '500',
   },
   selectedCategoryText: {
@@ -364,10 +369,14 @@ const styles = StyleSheet.create({
   outfitCard: {
     flex: 1,
     margin: 8,
-    backgroundColor: '#1E1E1E',
+    backgroundColor: '#FFFFFF',
     borderRadius: 12,
     overflow: 'hidden',
     elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   outfitImage: {
     width: '100%',
@@ -377,7 +386,7 @@ const styles = StyleSheet.create({
     padding: 12,
   },
   outfitName: {
-    color: '#FFFFFF',
+    color: '#333333',
     fontSize: 14,
     fontWeight: '600',
   },
@@ -392,7 +401,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   loadingText: {
-    color: '#FFFFFF',
+    color: '#333333',
     marginTop: 12,
   },
   emptyContainer: {
